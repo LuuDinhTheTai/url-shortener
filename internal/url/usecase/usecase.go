@@ -26,9 +26,9 @@ func NewUrlUseCase(cfg config.Config, urlRepository url.Repository) url.UseCase 
 }
 
 func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse, error) {
-	newId := uuid.New().String()
+	newId := uuid.New()
 
-	code := encrypt.EncodeBase62([]byte(newId))
+	code := encrypt.EncodeBase62(newId)
 
 	domain := u.cfg.Server.Host
 

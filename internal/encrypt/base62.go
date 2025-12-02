@@ -1,49 +1,26 @@
 package encrypt
 
 import (
-	"errors"
+	"fmt"
 	"math/big"
-	"strings"
 )
 
-const base62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-const base = 62
+type UUID = [16]byte
 
-// EncodeBase62 encodes a byte slice into a Base62 string
-func EncodeBase62(data []byte) string {
-	// Convert bytes to a big integer
-	num := new(big.Int).SetBytes(data)
-
-	// Special case: zero
-	if num.Cmp(big.NewInt(0)) == 0 {
-		return string(base62Chars[0])
-	}
-
-	var encoded strings.Builder
-	for num.Cmp(big.NewInt(0)) > 0 {
-		remainder := new(big.Int)
-		num.DivMod(num, big.NewInt(base), remainder)
-		encoded.WriteByte(base62Chars[remainder.Int64()])
-	}
-
-	// Reverse the string because we built it backwards
-	runes := []rune(encoded.String())
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-	return string(runes)
+func EncodeBase62(uuid UUID) string {
+	var i big.Int
+	i.SetBytes(uuid[:])
+	return i.Text(62)
 }
 
-// DecodeBase62 decodes a Base62 string into a byte slice
-func DecodeBase62(s string) ([]byte, error) {
-	num := big.NewInt(0)
-	for _, r := range s {
-		index := strings.IndexRune(base62Chars, r)
-		if index == -1 {
-			return nil, errors.New("invalid character in Base62 string")
-		}
-		num.Mul(num, big.NewInt(base))
-		num.Add(num, big.NewInt(int64(index)))
+func ParseBase62(s string) (UUID, error) {
+	var i big.Int
+	_, ok := i.SetString(s, 62)
+	if !ok {
+		return UUID{}, fmt.Errorf("cannot parse base62: %q", s)
 	}
-	return num.Bytes(), nil
+
+	var uuid UUID
+	copy(uuid[:], i.Bytes())
+	return uuid, nil
 }

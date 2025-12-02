@@ -1,9 +1,13 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Url struct {
-	Id        string    `gorm:"primaryKey;type:uuid"`
+	Id        uuid.UUID `gorm:"primaryKey;type:uuid"`
 	Domain    string    `gorm:"not null"`
 	Code      string    `gorm:"not null;unique"`
 	LongUrl   string    `gorm:"not null;type:text"`
