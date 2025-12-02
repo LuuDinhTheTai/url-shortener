@@ -1,8 +1,12 @@
 package url
 
-import "github.com/gin-gonic/gin"
+import (
+	"url-shortener/internal/url/delivery/dto"
+
+	"github.com/gin-gonic/gin"
+)
 
 type UseCase interface {
-	Shorten(ctx *gin.Context, url string) (string, error)
+	Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse, error)
 	Redirect(ctx *gin.Context, code string) (string, error)
 }

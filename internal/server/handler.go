@@ -4,21 +4,19 @@ import (
 	"url-shortener/internal/url/delivery/http"
 	"url-shortener/internal/url/repository"
 	"url-shortener/internal/url/usecase"
-
-	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) MapHandlers(r *gin.Engine) error {
+func (s *Server) MapHandlers() error {
 	// Init repository
-	urlRepository := repository.NewUrlRepository()
+	urlRepository := repository.NewUrlRepository(s.db)
 
 	// Init usecase
-	urlUseCase := usecase.NewUrlUseCase(urlRepository)
+	urlUseCase := usecase.NewUrlUseCase(s.cfg, urlRepository)
 
 	// Init handler
 	urlHandler := http.NewUrlHandler(urlUseCase)
 
-	http.MapUrlRoutes(r, urlHandler)
+	http.MapUrlRoutes(s.r, urlHandler)
 
 	return nil
 }

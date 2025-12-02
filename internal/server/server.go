@@ -4,23 +4,26 @@ import (
 	"url-shortener/config"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type Server struct {
 	r   *gin.Engine
 	cfg config.Config
+	db  *gorm.DB
 }
 
-func NewServer(cfg config.Config) *Server {
+func NewServer(cfg config.Config, db *gorm.DB) *Server {
 	return &Server{
 		cfg: cfg,
+		db:  db,
 	}
 }
 
 func (s *Server) Run() error {
 	s.r = gin.Default()
 
-	if err := s.MapHandlers(s.r); err != nil {
+	if err := s.MapHandlers(); err != nil {
 		return err
 	}
 
