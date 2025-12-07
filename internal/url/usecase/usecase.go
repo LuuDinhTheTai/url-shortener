@@ -54,6 +54,11 @@ func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse
 }
 
 func (u *urlUseCase) Redirect(ctx *gin.Context, code string) (string, error) {
-	//TODO implement me
-	panic("implement me")
+	result, err := u.urlRepository.FindByCode(ctx, code)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	return result.LongUrl, nil
 }

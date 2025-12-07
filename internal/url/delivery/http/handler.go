@@ -3,10 +3,12 @@ package http
 import (
 	"log"
 	"net/http"
+	"strings"
 	"url-shortener/internal/url"
 	"url-shortener/internal/url/delivery/dto"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type urlHandler struct {
@@ -38,6 +40,24 @@ func (u *urlHandler) Shorten(ctx *gin.Context) {
 }
 
 func (u *urlHandler) Redirect(ctx *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	code := ctx.Param("code")
+
+	if strings.HasSuffix(code, "favicon.ico") {
+		ctx.Status(http.StatusNoContent)
+		return
+	}
+
+	result, err := u.urlUseCase.Redirect(ctx, code)
+	if err != nil {
+		log.Println(err)
+
+		if err == gorm.ErrRecordNotFound {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "short url not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Redirect(http.StatusMovedPermanently, result)
 }

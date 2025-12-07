@@ -14,7 +14,10 @@ func main() {
 	cfg := config.LoadEnv()
 	log.Println(cfg)
 
-	pgDB, errDB := gorm.Open(postgres.Open(cfg.Database.URI), &gorm.Config{})
+	pgDB, errDB := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  cfg.Database.URI,
+		PreferSimpleProtocol: true,
+	}), &gorm.Config{})
 	if errDB != nil {
 		log.Fatal(errDB)
 	}

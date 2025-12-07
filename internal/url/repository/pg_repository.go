@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"url-shortener/internal/model"
 	"url-shortener/internal/url"
 
@@ -27,6 +28,11 @@ func (u *urlRepository) Save(ctx *gin.Context, url model.Url) (*model.Url, error
 }
 
 func (u *urlRepository) FindByCode(ctx *gin.Context, code string) (*model.Url, error) {
-	//TODO implement me
-	panic("implement me")
+	var m model.Url
+
+	if err := u.db.WithContext(ctx).Where("code = ?", code).First(&m).Error; err != nil {
+		return nil, err
+	}
+
+	return &m, nil
 }
