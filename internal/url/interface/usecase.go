@@ -1,4 +1,4 @@
-package url
+package _interface
 
 import (
 	"url-shortener/internal/url/delivery/dto"

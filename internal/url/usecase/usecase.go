@@ -6,8 +6,8 @@ import (
 	"url-shortener/config"
 	"url-shortener/internal/encrypt"
 	"url-shortener/internal/model"
-	"url-shortener/internal/url"
 	"url-shortener/internal/url/delivery/dto"
+	"url-shortener/internal/url/interface"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -15,10 +15,10 @@ import (
 
 type urlUseCase struct {
 	cfg           config.Config
-	urlRepository url.Repository
+	urlRepository _interface.Repository
 }
 
-func NewUrlUseCase(cfg config.Config, urlRepository url.Repository) url.UseCase {
+func NewUrlUseCase(cfg config.Config, urlRepository _interface.Repository) _interface.UseCase {
 	return &urlUseCase{
 		cfg:           cfg,
 		urlRepository: urlRepository,

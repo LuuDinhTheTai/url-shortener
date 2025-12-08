@@ -3,17 +3,17 @@ package http
 import (
 	"log"
 	"net/http"
-	"url-shortener/internal/url"
 	"url-shortener/internal/url/delivery/dto"
+	"url-shortener/internal/url/interface"
 
 	"github.com/gin-gonic/gin"
 )
 
 type urlHandler struct {
-	urlUseCase url.UseCase
+	urlUseCase _interface.UseCase
 }
 
-func NewUrlHandler(urlUseCase url.UseCase) url.Handler {
+func NewUrlHandler(urlUseCase _interface.UseCase) _interface.Handler {
 	return &urlHandler{
 		urlUseCase: urlUseCase,
 	}
