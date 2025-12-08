@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"log"
 	"time"
 	"url-shortener/config"
@@ -9,7 +10,6 @@ import (
 	"url-shortener/internal/url/delivery/dto"
 	"url-shortener/internal/url/interface"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -25,7 +25,7 @@ func NewUrlUseCase(cfg config.Config, urlRepository _interface.Repository) _inte
 	}
 }
 
-func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse, error) {
+func (u *urlUseCase) Shorten(ctx context.Context, url string) (*dto.ShortenResponse, error) {
 	newId := uuid.New()
 
 	code := encrypt.EncodeBase62(newId)
@@ -53,7 +53,7 @@ func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse
 	}, nil
 }
 
-func (u *urlUseCase) Redirect(ctx *gin.Context, code string) (string, error) {
+func (u *urlUseCase) Redirect(ctx context.Context, code string) (string, error) {
 	//TODO implement me
 	panic("implement me")
 }

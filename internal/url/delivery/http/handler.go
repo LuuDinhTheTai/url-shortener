@@ -27,7 +27,8 @@ func (u *urlHandler) Shorten(ctx *gin.Context) {
 		return
 	}
 
-	result, err := u.urlUseCase.Shorten(ctx, req.LongURL)
+	c := ctx.Request.Context()
+	result, err := u.urlUseCase.Shorten(c, req.LongURL)
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
