@@ -53,6 +53,23 @@ func (u *urlUseCase) Shorten(ctx context.Context, url string) (*dto.ShortenRespo
 }
 
 func (u *urlUseCase) Redirect(ctx context.Context, code string) (string, error) {
-	//TODO implement me
-	panic("implement me")
+	url, err := u.urlRepository.FindByCode(ctx, code)
+	if err != nil {
+		return "", fmt.Errorf("redirect: failed to find url: %w\n", err)
+	}
+
+	if url.ExpiresAt.Before(time.Now()) {
+		return "", fmt.Errorf("redirect: url expired")
+	}
+
+	if url.LongUrl == "" {
+		return "", fmt.Errorf("redirect: url not found")
+	}
+
+	url.UpdatedAt = time.Now()
+	if _, err := u.urlRepository.Update(ctx, *url); err != nil {
+		return "", fmt.Errorf("redirect: failed to update url: %w\n", err)
+	}
+
+	return url.LongUrl, nil
 }

@@ -60,6 +60,22 @@ func (u *urlHandler) Shorten(ctx *gin.Context) {
 }
 
 func (u *urlHandler) Redirect(ctx *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	c := ctx.Request.Context()
+
+	code := ctx.Param("code")
+	result, err := u.urlUseCase.Redirect(c, code)
+	if err != nil {
+		slog.Error("error redirecting url", err)
+
+		response.Error(
+			ctx,
+			http.StatusInternalServerError,
+			http.StatusText(http.StatusInternalServerError),
+			nil,
+		)
+
+		return
+	}
+
+	ctx.Redirect(http.StatusMovedPermanently, result)
 }

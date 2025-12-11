@@ -28,6 +28,18 @@ func (u *urlRepository) Save(ctx context.Context, url model.Url) (*model.Url, er
 }
 
 func (u *urlRepository) FindByCode(ctx context.Context, code string) (*model.Url, error) {
-	//TODO implement me
-	panic("implement me")
+	var url model.Url
+	if err := u.db.WithContext(ctx).Where("code = ?", code).First(&url).Error; err != nil {
+		return nil, fmt.Errorf("findByCode: failed to find url: %w\n", err)
+	}
+
+	return &url, nil
+}
+
+func (u *urlRepository) Update(ctx context.Context, newUrl model.Url) (*model.Url, error) {
+	if err := u.db.WithContext(ctx).Save(&newUrl).Error; err != nil {
+		return nil, fmt.Errorf("update: failed to update url: %w\n", err)
+	}
+
+	return &newUrl, nil
 }
