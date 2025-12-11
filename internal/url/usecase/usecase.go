@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"time"
 	"url-shortener/config"
 	"url-shortener/internal/encrypt"
@@ -30,7 +30,7 @@ func (u *urlUseCase) Shorten(ctx context.Context, url string) (*dto.ShortenRespo
 
 	code := encrypt.EncodeBase62(newId)
 
-	domain := u.cfg.Server.Host
+	domain := u.cfg.Server.Host + u.cfg.Server.Port
 
 	newUrl := &model.Url{
 		Id:        newId,
@@ -42,8 +42,7 @@ func (u *urlUseCase) Shorten(ctx context.Context, url string) (*dto.ShortenRespo
 
 	result, err := u.urlRepository.Save(ctx, *newUrl)
 	if err != nil {
-		log.Println(err)
-		return &dto.ShortenResponse{}, err
+		return &dto.ShortenResponse{}, fmt.Errorf("shorten: failed to save url: %w\n", err)
 	}
 
 	return &dto.ShortenResponse{

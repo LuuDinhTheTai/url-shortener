@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"url-shortener/internal/model"
 	"url-shortener/internal/url/interface"
 
@@ -20,7 +21,7 @@ func NewUrlRepository(db *gorm.DB) _interface.Repository {
 
 func (u *urlRepository) Save(ctx context.Context, url model.Url) (*model.Url, error) {
 	if err := u.db.WithContext(ctx).Create(&url).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("save: failed to save url: %w\n", err)
 	}
 
 	return &url, nil
