@@ -1,15 +1,12 @@
 package http
 
 import (
-	"url-shortener/internal/url"
+	"url-shortener/internal/url/interface"
 
 	"github.com/gin-gonic/gin"
 )
 
-func MapUrlRoutes(r *gin.Engine, handler url.Handler) {
-	r.GET("/favicon.ico", func(c *gin.Context) {
-		c.Status(204) // 204 No Content
-	})
+func MapUrlRoutes(r *gin.Engine, handler _interface.Handler) {
 	r.POST("/shorten", handler.Shorten)
 	r.GET("/:code", handler.Redirect)
 }

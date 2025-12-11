@@ -1,4 +1,4 @@
-package url
+package _interface
 
 import "github.com/gin-gonic/gin"
 

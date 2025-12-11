@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"url-shortener/internal/model"
-	"url-shortener/internal/url"
+	"url-shortener/internal/url/interface"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -13,26 +13,21 @@ type urlRepository struct {
 	db *gorm.DB
 }
 
-func NewUrlRepository(db *gorm.DB) url.Repository {
+func NewUrlRepository(db *gorm.DB) _interface.Repository {
 	return &urlRepository{
 		db: db,
 	}
 }
 
-func (u *urlRepository) Save(ctx *gin.Context, url model.Url) (*model.Url, error) {
+func (u *urlRepository) Save(ctx context.Context, url model.Url) (*model.Url, error) {
 	if err := u.db.WithContext(ctx).Create(&url).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("save: failed to save url: %w\n", err)
 	}
 
 	return &url, nil
 }
 
-func (u *urlRepository) FindByCode(ctx *gin.Context, code string) (*model.Url, error) {
-	var m model.Url
-
-	if err := u.db.WithContext(ctx).Where("code = ?", code).First(&m).Error; err != nil {
-		return nil, err
-	}
-
-	return &m, nil
+func (u *urlRepository) FindByCode(ctx context.Context, code string) (*model.Url, error) {
+	//TODO implement me
+	panic("implement me")
 }

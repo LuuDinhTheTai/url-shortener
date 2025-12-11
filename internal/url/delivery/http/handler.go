@@ -1,63 +1,65 @@
 package http
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
-	"strings"
-	"url-shortener/internal/url"
 	"url-shortener/internal/url/delivery/dto"
+	"url-shortener/internal/url/interface"
+	"url-shortener/internal/util/response"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type urlHandler struct {
-	urlUseCase url.UseCase
+	urlUseCase _interface.UseCase
 }
 
-func NewUrlHandler(urlUseCase url.UseCase) url.Handler {
+func NewUrlHandler(urlUseCase _interface.UseCase) _interface.Handler {
 	return &urlHandler{
 		urlUseCase: urlUseCase,
 	}
 }
 
 func (u *urlHandler) Shorten(ctx *gin.Context) {
+	c := ctx.Request.Context()
+
 	var req dto.ShortenRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		slog.Error("error binding json", err)
+
+		response.Error(
+			ctx,
+			http.StatusBadRequest,
+			http.StatusText(http.StatusBadRequest),
+			nil,
+		)
+
 		return
 	}
 
-	result, err := u.urlUseCase.Shorten(ctx, req.LongURL)
+	result, err := u.urlUseCase.Shorten(c, req.LongURL)
 	if err != nil {
-		log.Println(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		slog.Error("error shortening url", err)
+
+		response.Error(
+			ctx,
+			http.StatusInternalServerError,
+			http.StatusText(http.StatusInternalServerError),
+			nil,
+		)
+
 		return
 	}
 
-	ctx.JSON(http.StatusOK, result)
+	response.Success(
+		ctx,
+		http.StatusOK,
+		http.StatusText(http.StatusOK),
+		result,
+	)
 }
 
 func (u *urlHandler) Redirect(ctx *gin.Context) {
-	code := ctx.Param("code")
-
-	if strings.HasSuffix(code, "favicon.ico") {
-		ctx.Status(http.StatusNoContent)
-		return
-	}
-
-	result, err := u.urlUseCase.Redirect(ctx, code)
-	if err != nil {
-		log.Println(err)
-
-		if err == gorm.ErrRecordNotFound {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "short url not found"})
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.Redirect(http.StatusMovedPermanently, result)
+	//TODO implement me
+	panic("implement me")
 }

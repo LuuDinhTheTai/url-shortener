@@ -1,36 +1,36 @@
 package usecase
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"time"
 	"url-shortener/config"
 	"url-shortener/internal/encrypt"
 	"url-shortener/internal/model"
-	"url-shortener/internal/url"
 	"url-shortener/internal/url/delivery/dto"
+	"url-shortener/internal/url/interface"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type urlUseCase struct {
 	cfg           config.Config
-	urlRepository url.Repository
+	urlRepository _interface.Repository
 }
 
-func NewUrlUseCase(cfg config.Config, urlRepository url.Repository) url.UseCase {
+func NewUrlUseCase(cfg config.Config, urlRepository _interface.Repository) _interface.UseCase {
 	return &urlUseCase{
 		cfg:           cfg,
 		urlRepository: urlRepository,
 	}
 }
 
-func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse, error) {
+func (u *urlUseCase) Shorten(ctx context.Context, url string) (*dto.ShortenResponse, error) {
 	newId := uuid.New()
 
 	code := encrypt.EncodeBase62(newId)
 
-	domain := u.cfg.Server.Host
+	domain := u.cfg.Server.Host + u.cfg.Server.Port
 
 	newUrl := &model.Url{
 		Id:        newId,
@@ -42,8 +42,7 @@ func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse
 
 	result, err := u.urlRepository.Save(ctx, *newUrl)
 	if err != nil {
-		log.Println(err)
-		return &dto.ShortenResponse{}, err
+		return &dto.ShortenResponse{}, fmt.Errorf("shorten: failed to save url: %w\n", err)
 	}
 
 	return &dto.ShortenResponse{
@@ -53,12 +52,7 @@ func (u *urlUseCase) Shorten(ctx *gin.Context, url string) (*dto.ShortenResponse
 	}, nil
 }
 
-func (u *urlUseCase) Redirect(ctx *gin.Context, code string) (string, error) {
-	result, err := u.urlRepository.FindByCode(ctx, code)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
-	return result.LongUrl, nil
+func (u *urlUseCase) Redirect(ctx context.Context, code string) (string, error) {
+	//TODO implement me
+	panic("implement me")
 }

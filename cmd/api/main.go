@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"url-shortener/config"
 	"url-shortener/internal/model"
 	server2 "url-shortener/internal/server"
@@ -24,7 +25,7 @@ func main() {
 
 	errMg := pgDB.AutoMigrate(&model.Url{})
 	if errMg != nil {
-		log.Fatal(errMg)
+		slog.Error(errMg.Error())
 	}
 
 	server := server2.NewServer(cfg, pgDB)
