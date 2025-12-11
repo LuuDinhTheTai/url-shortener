@@ -1,10 +1,11 @@
 package http
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"url-shortener/internal/url/delivery/dto"
 	"url-shortener/internal/url/interface"
+	"url-shortener/internal/util/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,22 +21,42 @@ func NewUrlHandler(urlUseCase _interface.UseCase) _interface.Handler {
 }
 
 func (u *urlHandler) Shorten(ctx *gin.Context) {
+	c := ctx.Request.Context()
+
 	var req dto.ShortenRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		slog.Error("error binding json", err)
+
+		response.Error(
+			ctx,
+			http.StatusBadRequest,
+			http.StatusText(http.StatusBadRequest),
+			nil,
+		)
+
 		return
 	}
 
-	c := ctx.Request.Context()
 	result, err := u.urlUseCase.Shorten(c, req.LongURL)
 	if err != nil {
-		log.Println(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		slog.Error("error shortening url", err)
+
+		response.Error(
+			ctx,
+			http.StatusInternalServerError,
+			http.StatusText(http.StatusInternalServerError),
+			nil,
+		)
+
 		return
 	}
 
-	ctx.JSON(http.StatusOK, result)
+	response.Success(
+		ctx,
+		http.StatusOK,
+		http.StatusText(http.StatusOK),
+		result,
+	)
 }
 
 func (u *urlHandler) Redirect(ctx *gin.Context) {
